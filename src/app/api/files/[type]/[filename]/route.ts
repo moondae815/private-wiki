@@ -3,12 +3,12 @@ import { readFile, writeFile, deleteFile, renameFile } from '@/lib/files'
 import { toFilename } from '@/lib/slugify'
 import { FileType } from '@/types'
 
-type Params = { type: FileType; filename: string }
+type Params = { type: string; filename: string }
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<Params> }) {
   const { type, filename } = await params
   try {
-    const content = await readFile(type, filename)
+    const content = await readFile(type as FileType, filename)
     return NextResponse.json({ content })
   } catch {
     return NextResponse.json({ error: 'File not found' }, { status: 404 })
@@ -23,7 +23,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<Params
   if (body.newTitle) {
     const newFilename = toFilename(body.newTitle)
     try {
-      await renameFile(type, filename, newFilename)
+      await renameFile(type as FileType, filename, newFilename)
       return NextResponse.json({ filename: newFilename })
     } catch {
       return NextResponse.json({ error: 'Rename failed' }, { status: 500 })
@@ -33,7 +33,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<Params
   // Handle content update
   if (body.content !== undefined) {
     try {
-      await writeFile(type, filename, body.content)
+      await writeFile(type as FileType, filename, body.content)
       return NextResponse.json({ ok: true })
     } catch {
       return NextResponse.json({ error: 'Write failed' }, { status: 500 })
@@ -46,7 +46,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<Params
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<Params> }) {
   const { type, filename } = await params
   try {
-    await deleteFile(type, filename)
+    await deleteFile(type as FileType, filename)
     return NextResponse.json({ ok: true })
   } catch {
     return NextResponse.json({ error: 'Delete failed' }, { status: 500 })

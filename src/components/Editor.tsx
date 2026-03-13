@@ -46,7 +46,8 @@ export function Editor({ content, filename, type, onSave }: EditorProps) {
       },
     },
     onUpdate({ editor }) {
-      const markdown = editor.storage.markdown.getMarkdown()
+      const markdown = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+(editor.storage as any).markdown.getMarkdown()
       triggerSave(markdown)
     },
   })
@@ -54,7 +55,8 @@ export function Editor({ content, filename, type, onSave }: EditorProps) {
   // Update content when file changes
   useEffect(() => {
     if (!editor) return
-    const current = editor.storage.markdown.getMarkdown()
+    const current = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+(editor.storage as any).markdown.getMarkdown()
     if (current !== content) {
       editor.commands.setContent(content)
     }
