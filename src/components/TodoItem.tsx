@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import type { TodoItem as TodoItemType } from '@/lib/todos'
+import { extractTodoMetadata } from '@/lib/markdown'
 import { DatePickerPopover } from './DatePickerPopover'
 import { PriorityDropdown } from './PriorityDropdown'
 
@@ -18,8 +19,16 @@ export function TodoItem({ item, onChange }: TodoItemProps) {
 
   const commitText = () => {
     setEditing(false)
-    if (editText.trim() !== item.text) {
-      update({ text: editText.trim() })
+    const trimmed = editText.trim()
+    const metadata = extractTodoMetadata(trimmed)
+    const cleanText = trimmed
+      .replace(/@due:\S+/g, '')
+      .replace(/@priority:\S+/g, '')
+      .trim()
+    const newDue = metadata.due !== null ? metadata.due : item.due
+    const newPriority = metadata.priority !== null ? metadata.priority : item.priority
+    if (cleanText !== item.text || newDue !== item.due || newPriority !== item.priority) {
+      onChange({ ...item, text: cleanText, due: newDue, priority: newPriority })
     }
   }
 

@@ -1,6 +1,7 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { parseMarkdownToItems, serializeItemsToMarkdown, TodoItem as TodoItemType } from '@/lib/todos'
+import { extractTodoMetadata } from '@/lib/markdown'
 import { TodoItem } from './TodoItem'
 import { useAutoSave } from '@/hooks/useAutoSave'
 
@@ -13,6 +14,11 @@ interface TodoViewProps {
 export function TodoView({ content, filename, onSave }: TodoViewProps) {
   const [items, setItems] = useState<TodoItemType[]>(() => parseMarkdownToItems(content))
   const [latestContent, setLatestContent] = useState(content)
+
+  useEffect(() => {
+    setItems(parseMarkdownToItems(content))
+    setLatestContent(content)
+  }, [content])
   const [newTodoText, setNewTodoText] = useState('')
 
   const saveToServer = useCallback(
@@ -43,12 +49,17 @@ export function TodoView({ content, filename, onSave }: TodoViewProps) {
   const addTodo = (text: string) => {
     const trimmed = text.trim()
     if (!trimmed) return
+    const metadata = extractTodoMetadata(trimmed)
+    const cleanText = trimmed
+      .replace(/@due:\S+/g, '')
+      .replace(/@priority:\S+/g, '')
+      .trim()
     const newItem: TodoItemType = {
       id: crypto.randomUUID(),
       checked: false,
-      text: trimmed,
-      due: null,
-      priority: null,
+      text: cleanText,
+      due: metadata.due,
+      priority: metadata.priority,
     }
     const newItems = [...items, newItem]
     applyChange(newItems, true)
