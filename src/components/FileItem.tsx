@@ -1,6 +1,8 @@
 'use client'
+import { useState } from 'react'
 import { FileEntry } from '@/types'
 import { format } from 'date-fns'
+import { Dialog, DialogConfig } from './Dialog'
 
 interface FileItemProps {
   file: FileEntry
@@ -23,9 +25,17 @@ export function FileItem({
   onUnsetPrivate,
   hideTags,
 }: FileItemProps) {
+  const [dialog, setDialog] = useState<DialogConfig | null>(null)
+
   const handleRename = () => {
-    const newTitle = window.prompt('새 제목:', file.title)
-    if (newTitle && newTitle.trim()) onRename(newTitle.trim())
+    setDialog({
+      type: 'prompt',
+      title: '이름 변경',
+      placeholder: '새 제목',
+      defaultValue: file.title,
+      onSubmit: (newTitle) => { setDialog(null); onRename(newTitle) },
+      onCancel: () => setDialog(null),
+    })
   }
 
   return (
@@ -75,6 +85,7 @@ export function FileItem({
           title="삭제"
         >🗑️</button>
       </div>
+      {dialog && <Dialog {...dialog} />}
     </div>
   )
 }
