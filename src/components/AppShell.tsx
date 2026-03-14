@@ -6,6 +6,7 @@ import { Sidebar } from './Sidebar'
 import { Editor } from './Editor'
 import { TodoView } from './TodoView'
 import { PasswordModal } from './PasswordModal'
+import { Dialog, DialogConfig } from './Dialog'
 import { useFiles } from '@/hooks/useFiles'
 import { encrypt, decrypt, CryptoError } from '@/lib/crypto'
 
@@ -26,6 +27,7 @@ export function AppShell({ type }: AppShellProps) {
   const [activePassword, setActivePassword] = useState<string | null>(null)
   const [modal, setModal] = useState<ModalState>(null)
   const [modalError, setModalError] = useState<string | undefined>()
+  const [dialog, setDialog] = useState<DialogConfig | null>(null)
   // Ref used by "set private" flow to flush in-flight auto-save
   const flushRef = useRef<(() => Promise<void>) | null>(null)
 
@@ -136,11 +138,18 @@ export function AppShell({ type }: AppShellProps) {
   }, [])
 
   // ── CRUD handlers ───────────────────────────────────────────────
-  const handleNewFile = async () => {
-    const title = window.prompt('새 파일 제목:')
-    if (!title?.trim()) return
-    const filename = await createFile(title.trim())
-    if (filename) setActiveFilename(filename)
+  const handleNewFile = () => {
+    setDialog({
+      type: 'prompt',
+      title: '새 파일 제목',
+      placeholder: '제목을 입력하세요',
+      onSubmit: async (title) => {
+        setDialog(null)
+        const filename = await createFile(title)
+        if (filename) setActiveFilename(filename)
+      },
+      onCancel: () => setDialog(null),
+    })
   }
 
   const handleDelete = async (filename: string) => {
@@ -236,6 +245,8 @@ export function AppShell({ type }: AppShellProps) {
           error={modalError}
         />
       )}
+
+      {dialog && <Dialog {...dialog} />}
     </div>
   )
 }
