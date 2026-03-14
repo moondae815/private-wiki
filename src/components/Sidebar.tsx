@@ -33,7 +33,7 @@ export function Sidebar({ files, activeFilename, type, onSelect, onDelete, onRen
           filtered.length === 0 ? (
             <p className="text-xs text-gray-400 text-center mt-8 px-4">검색 결과 없음</p>
           ) : (
-            <div className="py-1">
+            <div>
               {filtered.map((file) => (
                 <FileItem
                   key={file.filename}
