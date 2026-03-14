@@ -25,14 +25,20 @@ export function Dialog(props: DialogConfig) {
   )
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const onCancelRef = useRef(props.onCancel)
+  useEffect(() => { onCancelRef.current = props.onCancel })
+
   useEffect(() => {
     inputRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') props.onCancel()
+      if (e.key === 'Escape') onCancelRef.current()
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [props.onCancel])
+  }, [])
 
   const handleSubmit = () => {
     if (props.type === 'prompt') {

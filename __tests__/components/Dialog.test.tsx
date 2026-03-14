@@ -36,6 +36,18 @@ describe('Dialog – prompt mode', () => {
     render(<Dialog type="prompt" title="제목:" defaultValue="기존 제목" onSubmit={jest.fn()} onCancel={jest.fn()} />)
     expect(screen.getByRole('textbox')).toHaveValue('기존 제목')
   })
+
+  it('submits defaultValue when submitted without editing', () => {
+    const onSubmit = jest.fn()
+    render(<Dialog type="prompt" title="제목:" defaultValue="기존 제목" onSubmit={onSubmit} onCancel={jest.fn()} />)
+    fireEvent.click(screen.getByText('확인'))
+    expect(onSubmit).toHaveBeenCalledWith('기존 제목')
+  })
+
+  it('확인 button is disabled when input is empty', () => {
+    render(<Dialog type="prompt" title="제목:" onSubmit={jest.fn()} onCancel={jest.fn()} />)
+    expect(screen.getByText('확인')).toBeDisabled()
+  })
 })
 
 describe('Dialog – confirm mode', () => {
