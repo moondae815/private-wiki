@@ -13,43 +13,23 @@ describe('useAutoSave', () => {
     const saveFn = jest.fn().mockResolvedValue(undefined)
     const { result } = renderHook(() => useAutoSave(saveFn, 2000))
 
-    act(() => result.current.trigger('content'))
+    await act(async () => { result.current.trigger('content') })
     expect(saveFn).not.toHaveBeenCalled()
 
-    act(() => jest.advanceTimersByTime(2000))
+    await act(async () => { jest.advanceTimersByTime(2000) })
     expect(saveFn).toHaveBeenCalledWith('content')
-  })
-
-  it('flush() cancels the pending timer', async () => {
-    const saveFn = jest.fn().mockResolvedValue(undefined)
-    const { result } = renderHook(() => useAutoSave(saveFn, 2000))
-
-    act(() => {
-      result.current.trigger('content')
-      result.current.flush()
-      jest.advanceTimersByTime(2000)
-    })
-
-    // saveFn called exactly once (by flush), not again by the timer
-    expect(saveFn).toHaveBeenCalledTimes(1)
-  })
-
-  it('flush() is a no-op when no timer is pending', () => {
-    const saveFn = jest.fn().mockResolvedValue(undefined)
-    const { result } = renderHook(() => useAutoSave(saveFn, 2000))
-
-    act(() => result.current.flush())
-    expect(saveFn).not.toHaveBeenCalled()
   })
 
   it('resets debounce on repeated calls', async () => {
     const saveFn = jest.fn().mockResolvedValue(undefined)
     const { result } = renderHook(() => useAutoSave(saveFn, 2000))
 
-    act(() => result.current.trigger('first'))
-    act(() => jest.advanceTimersByTime(1000))
-    act(() => result.current.trigger('second'))
-    act(() => jest.advanceTimersByTime(2000))
+    await act(async () => {
+      result.current.trigger('first')
+      jest.advanceTimersByTime(1000)
+      result.current.trigger('second')
+      jest.advanceTimersByTime(2000)
+    })
 
     expect(saveFn).toHaveBeenCalledTimes(1)
     expect(saveFn).toHaveBeenCalledWith('second')
@@ -59,10 +39,35 @@ describe('useAutoSave', () => {
     const saveFn = jest.fn().mockResolvedValue(undefined)
     const { result } = renderHook(() => useAutoSave(saveFn, 2000))
 
-    act(() => result.current.trigger('pending content'))
-    expect(saveFn).not.toHaveBeenCalled()
+    let callsBeforeFlush = -1
+    await act(async () => {
+      result.current.trigger('pending content')
+      callsBeforeFlush = saveFn.mock.calls.length
+      result.current.flush()
+    })
 
-    act(() => result.current.flush())
+    expect(callsBeforeFlush).toBe(0)
     expect(saveFn).toHaveBeenCalledWith('pending content')
+  })
+
+  it('flush() is a no-op when no timer is pending', async () => {
+    const saveFn = jest.fn().mockResolvedValue(undefined)
+    const { result } = renderHook(() => useAutoSave(saveFn, 2000))
+
+    await act(async () => { result.current.flush() })
+    expect(saveFn).not.toHaveBeenCalled()
+  })
+
+  it('flush() cancels the pending timer', async () => {
+    const saveFn = jest.fn().mockResolvedValue(undefined)
+    const { result } = renderHook(() => useAutoSave(saveFn, 2000))
+
+    await act(async () => {
+      result.current.trigger('content')
+      result.current.flush()
+      jest.advanceTimersByTime(2000)
+    })
+
+    expect(saveFn).toHaveBeenCalledTimes(1)
   })
 })
