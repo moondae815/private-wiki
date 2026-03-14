@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { TagNode, TagTreeRoot } from '@/lib/tagTree'
 import { FileItem } from './FileItem'
+import { Dialog, DialogConfig } from './Dialog'
 
 interface TagTreeProps {
   root: TagTreeRoot
@@ -38,6 +39,7 @@ function TagNodeRow({
   onSetPrivate,
   onUnsetPrivate,
 }: TagNodeRowProps) {
+  const [dialog, setDialog] = useState<DialogConfig | null>(null)
   const isCollapsed = collapsed.has(node.fullPath)
   const sortedChildren = [...node.children.values()].sort((a, b) =>
     a.name.localeCompare(b.name)
@@ -83,9 +85,14 @@ function TagNodeRow({
                 isActive={file.filename === activeFilename}
                 onSelect={() => onSelect(file.filename)}
                 onDelete={() => {
-                  if (window.confirm(`"${file.title}"을 삭제할까요?`)) {
-                    onDelete(file.filename)
-                  }
+                  setDialog({
+                    type: 'confirm',
+                    title: '파일 삭제',
+                    message: `"${file.title}"을 삭제할까요?`,
+                    danger: true,
+                    onConfirm: () => { setDialog(null); onDelete(file.filename) },
+                    onCancel: () => setDialog(null),
+                  })
                 }}
                 onRename={(newTitle) => onRename(file.filename, newTitle)}
                 onSetPrivate={onSetPrivate ? () => onSetPrivate(file.filename) : undefined}
@@ -96,12 +103,14 @@ function TagNodeRow({
           ))}
         </>
       )}
+      {dialog && <Dialog {...dialog} />}
     </div>
   )
 }
 
 export function TagTree({ root, activeFilename, onSelect, onDelete, onRename, onSetPrivate, onUnsetPrivate }: TagTreeProps) {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+  const [dialog, setDialog] = useState<DialogConfig | null>(null)
 
   const toggleCollapsed = (fullPath: string) => {
     setCollapsed((prev) => {
@@ -136,9 +145,14 @@ export function TagTree({ root, activeFilename, onSelect, onDelete, onRename, on
               isActive={file.filename === activeFilename}
               onSelect={() => onSelect(file.filename)}
               onDelete={() => {
-                if (window.confirm(`"${file.title}"을 삭제할까요?`)) {
-                  onDelete(file.filename)
-                }
+                setDialog({
+                  type: 'confirm',
+                  title: '파일 삭제',
+                  message: `"${file.title}"을 삭제할까요?`,
+                  danger: true,
+                  onConfirm: () => { setDialog(null); onDelete(file.filename) },
+                  onCancel: () => setDialog(null),
+                })
               }}
               onRename={(newTitle) => onRename(file.filename, newTitle)}
               onSetPrivate={onSetPrivate ? () => onSetPrivate(file.filename) : undefined}
@@ -164,6 +178,7 @@ export function TagTree({ root, activeFilename, onSelect, onDelete, onRename, on
           onUnsetPrivate={onUnsetPrivate}
         />
       ))}
+      {dialog && <Dialog {...dialog} />}
     </div>
   )
 }
