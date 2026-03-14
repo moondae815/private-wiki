@@ -1,6 +1,5 @@
 'use client'
 import { useState } from 'react'
-import { FileEntry } from '@/types'
 import { TagNode, TagTreeRoot } from '@/lib/tagTree'
 import { FileItem } from './FileItem'
 
