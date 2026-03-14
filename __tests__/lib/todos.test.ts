@@ -137,4 +137,26 @@ describe('serializeItemsToMarkdown', () => {
     const existingIdx = lines.indexOf('- [ ] 기존')
     expect(lines[existingIdx + 1]).toBe('- [ ] 새 항목')
   })
+
+  it('모든 항목이 제거되면 todo 라인이 없는 content를 반환한다', () => {
+    const content = '# 제목\n- [ ] 첫번째\n- [ ] 두번째\n'
+    const items = parseMarkdownToItems(content)
+    const result = serializeItemsToMarkdown([], content)
+    expect(result).toContain('# 제목')
+    expect(result).not.toContain('첫번째')
+    expect(result).not.toContain('두번째')
+  })
+
+  it('parse → serialize → parse 라운드트립이 동일한 데이터를 반환한다', () => {
+    const content = '# 제목\n\n- [ ] 작업 @due:2025-03-20 @priority:high\n- [x] 완료\n'
+    const items1 = parseMarkdownToItems(content)
+    const serialized = serializeItemsToMarkdown(items1, content)
+    const items2 = parseMarkdownToItems(serialized)
+    expect(items2).toHaveLength(items1.length)
+    expect(items2[0].checked).toBe(items1[0].checked)
+    expect(items2[0].text).toBe(items1[0].text)
+    expect(items2[0].due).toBe(items1[0].due)
+    expect(items2[0].priority).toBe(items1[0].priority)
+    expect(items2[1].checked).toBe(items1[1].checked)
+  })
 })

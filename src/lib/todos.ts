@@ -44,7 +44,7 @@ export function serializeItemsToMarkdown(
 
   const todoIndices: number[] = []
   for (let i = 0; i < lines.length; i++) {
-    if (/^- \[([ x])\] /.test(lines[i]) || lines[i] === '- [ ] ' || lines[i] === '- [x] ' || lines[i] === '- [ ]' || lines[i] === '- [x]') {
+    if (/^- \[([ x])\] ?/.test(lines[i])) {
       todoIndices.push(i)
     }
   }
@@ -52,6 +52,7 @@ export function serializeItemsToMarkdown(
   const serialized = items.map(serializeItem)
 
   if (todoIndices.length === 0) {
+    if (serialized.length === 0) return latestContent  // nothing to do
     return latestContent.trimEnd() + '\n' + serialized.join('\n') + '\n'
   }
 
