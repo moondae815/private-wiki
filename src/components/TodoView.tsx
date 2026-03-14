@@ -34,7 +34,7 @@ export function TodoView({ content, filename, onSave }: TodoViewProps) {
     setItems(newItems)
     setLatestContent(markdown)
     if (immediate) {
-      saveToServer(markdown)
+      saveToServer(markdown).catch(console.error)
     } else {
       triggerAutoSave(markdown)
     }
