@@ -2,10 +2,6 @@ export function extractTags(content: string): string[] {
   const allMatches = content.matchAll(/#([a-zA-Z가-힣0-9_-]+)/g)
   const tags: string[] = []
   for (const match of allMatches) {
-    const index = match.index ?? 0
-    const charBefore = content[index - 1]
-    // Skip if at start of line (heading) - charBefore is newline or undefined
-    if (charBefore === '\n' || charBefore === undefined) continue
     tags.push(match[1])
   }
   return [...new Set(tags)]

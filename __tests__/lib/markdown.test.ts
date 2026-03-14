@@ -18,6 +18,14 @@ describe('extractTags', () => {
   it('ignores markdown headings (#)', () => {
     expect(extractTags('# Heading\n## Sub')).toEqual([])
   })
+
+  it('extracts #tag at the start of a line (not a heading)', () => {
+    expect(extractTags('내용\n#tag-at-line-start')).toEqual(['tag-at-line-start'])
+  })
+
+  it('extracts #tag at the very start of content', () => {
+    expect(extractTags('#first-tag 내용')).toEqual(['first-tag'])
+  })
 })
 
 describe('extractTodoMetadata', () => {
