@@ -26,6 +26,22 @@ describe('extractTags', () => {
   it('extracts #tag at the very start of content', () => {
     expect(extractTags('#first-tag 내용')).toEqual(['first-tag'])
   })
+
+  it('extracts slash-separated nested tag as a single tag', () => {
+    expect(extractTags('content #work/project/design end')).toEqual(['work/project/design'])
+  })
+
+  it('extracts mixed flat and nested tags', () => {
+    expect(extractTags('#personal content #work/project')).toEqual(['personal', 'work/project'])
+  })
+
+  it('normalizes trailing slash in tag', () => {
+    expect(extractTags('#work/ content')).toEqual(['work'])
+  })
+
+  it('does not match tag starting with slash', () => {
+    expect(extractTags('#/leading content')).toEqual([])
+  })
 })
 
 describe('extractTodoMetadata', () => {

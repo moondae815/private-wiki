@@ -1,8 +1,9 @@
 export function extractTags(content: string): string[] {
-  const allMatches = content.matchAll(/#([a-zA-Z가-힣0-9_-]+)/g)
+  const allMatches = content.matchAll(/#([a-zA-Z가-힣0-9][a-zA-Z가-힣0-9_/\-]*)/g)
   const tags: string[] = []
   for (const match of allMatches) {
-    tags.push(match[1])
+    const normalized = match[1].replace(/\/+$/, '') // trim trailing slashes
+    if (normalized) tags.push(normalized)
   }
   return [...new Set(tags)]
 }
