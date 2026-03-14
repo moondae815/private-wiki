@@ -7,6 +7,7 @@ export interface FileEntry {
   tags: string[]          // extracted #tags
   createdAt: string       // ISO date string
   updatedAt: string       // ISO date string
+  isPrivate: boolean
 }
 
 export interface SearchResult {

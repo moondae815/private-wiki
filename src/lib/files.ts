@@ -3,6 +3,7 @@ import path from 'path'
 import { FileEntry, FileType } from '@/types'
 import { extractTags } from '@/lib/markdown'
 import { extractTitle } from '@/lib/slugify'
+import { isPrivate } from '@/lib/fileFormat'
 
 export const DATA_DIR = path.join(process.cwd(), 'data')
 
@@ -22,9 +23,10 @@ export async function listFiles(type: FileType): Promise<FileEntry[]> {
         filename,
         title: extractTitle(filename),
         type,
-        tags: extractTags(content),
+        tags: isPrivate(content) ? [] : extractTags(content),
         createdAt: stat.birthtime.toISOString(),
         updatedAt: stat.mtime.toISOString(),
+        isPrivate: isPrivate(content),
       } as FileEntry
     })
   )

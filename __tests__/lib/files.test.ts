@@ -7,7 +7,7 @@ const mockFs = fs as jest.Mocked<typeof fs>
 import { listFiles, readFile, writeFile, deleteFile, DATA_DIR } from '@/lib/files'
 
 describe('listFiles', () => {
-  it('returns FileEntry array for existing .md files', async () => {
+  it('returns FileEntry array with isPrivate: false for plain files', async () => {
     mockFs.readdir.mockResolvedValue(['2026-03-13-메모.md'] as any)
     mockFs.stat.mockResolvedValue({ mtime: new Date('2026-03-13'), birthtime: new Date('2026-03-13') } as any)
     mockFs.readFile.mockResolvedValue('# 메모\n\n내용 #work' as any)
@@ -16,6 +16,17 @@ describe('listFiles', () => {
     expect(result).toHaveLength(1)
     expect(result[0].filename).toBe('2026-03-13-메모.md')
     expect(result[0].tags).toContain('work')
+    expect(result[0].isPrivate).toBe(false)
+  })
+
+  it('sets isPrivate: true and tags: [] for PRIVATE: files', async () => {
+    mockFs.readdir.mockResolvedValue(['2026-03-13-비밀.md'] as any)
+    mockFs.stat.mockResolvedValue({ mtime: new Date('2026-03-13'), birthtime: new Date('2026-03-13') } as any)
+    mockFs.readFile.mockResolvedValue('PRIVATE:abc:def:ghi' as any)
+
+    const result = await listFiles('notes')
+    expect(result[0].isPrivate).toBe(true)
+    expect(result[0].tags).toEqual([])
   })
 })
 
