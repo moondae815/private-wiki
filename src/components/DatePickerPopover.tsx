@@ -66,7 +66,7 @@ export function DatePickerPopover({ value, onChange }: DatePickerPopoverProps) {
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full mt-1 z-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3 flex flex-col gap-2 min-w-[200px]">
+        <div className="absolute right-0 top-full mt-1 z-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3 flex flex-col gap-2 min-w-[200px]">
           <input
             type="text"
             placeholder="YYYY-MM-DD"

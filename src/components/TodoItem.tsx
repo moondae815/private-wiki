@@ -59,9 +59,11 @@ export function TodoItem({ item, onChange }: TodoItemProps) {
         ) : (
           <span
             onDoubleClick={() => { setEditing(true); setEditText(item.text) }}
-            className={`text-sm cursor-text select-none ${item.checked ? 'line-through text-gray-400' : 'text-gray-800 dark:text-gray-200'}`}
+            title="더블클릭하여 편집"
+            className={`group/text relative inline-flex items-center gap-1 text-sm cursor-text select-none ${item.checked ? 'line-through text-gray-400' : 'text-gray-800 dark:text-gray-200'}`}
           >
             {item.text || <span className="text-gray-300 dark:text-gray-600 italic">빈 항목</span>}
+            <span className="opacity-0 group-hover/text:opacity-40 transition-opacity text-gray-400 text-xs">✎</span>
           </span>
         )}
       </div>
