@@ -7,7 +7,7 @@ interface DatePickerPopoverProps {
 }
 
 function isOverdue(date: string): boolean {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = new Date().toLocaleDateString('sv') // ISO format in local timezone
   return date < today
 }
 
