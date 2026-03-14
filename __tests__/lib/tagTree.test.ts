@@ -44,9 +44,9 @@ describe('buildTagTree', () => {
     expect(tree.roots.size).toBe(0)
   })
 
-  it('normalizes trailing slash tag to correct node', () => {
-    // extractTags already normalizes — this tests buildTagTree handles it
-    const file = makeFile('e.md', ['work'])  // already normalized by extractTags
+  it('handles trailing-slash tag by filtering empty segments', () => {
+    // 'work/' splits to ['work', ''] — filter(Boolean) removes empty string
+    const file = makeFile('e.md', ['work/'])
     const tree = buildTagTree([file])
     expect(tree.roots.get('work')?.files).toContain(file)
   })
