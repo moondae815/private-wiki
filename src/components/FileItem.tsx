@@ -8,9 +8,10 @@ interface FileItemProps {
   onSelect: () => void
   onDelete: () => void
   onRename: (newTitle: string) => void
+  hideTags?: boolean
 }
 
-export function FileItem({ file, isActive, onSelect, onDelete, onRename }: FileItemProps) {
+export function FileItem({ file, isActive, onSelect, onDelete, onRename, hideTags }: FileItemProps) {
   const handleRename = () => {
     const newTitle = window.prompt('새 제목:', file.title)
     if (newTitle && newTitle.trim()) onRename(newTitle.trim())
@@ -29,7 +30,7 @@ export function FileItem({ file, isActive, onSelect, onDelete, onRename }: FileI
         <p className="text-sm font-medium truncate">{file.title}</p>
         <p className="text-xs text-gray-400">
           {format(new Date(file.updatedAt), 'MM/dd')}
-          {file.tags.length > 0 && ` · ${file.tags.map((t) => `#${t}`).join(' ')}`}
+          {!hideTags && file.tags.length > 0 && ` · ${file.tags.map((t) => `#${t}`).join(' ')}`}
         </p>
       </div>
       <div className="hidden group-hover:flex items-center gap-1 ml-2 shrink-0">
