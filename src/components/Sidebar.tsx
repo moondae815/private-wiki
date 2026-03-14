@@ -13,9 +13,11 @@ interface SidebarProps {
   onSelect: (filename: string) => void
   onDelete: (filename: string) => void
   onRename: (filename: string, newTitle: string) => void
+  onSetPrivate?: (filename: string) => void
+  onUnsetPrivate?: (filename: string) => void
 }
 
-export function Sidebar({ files, activeFilename, type, onSelect, onDelete, onRename }: SidebarProps) {
+export function Sidebar({ files, activeFilename, type, onSelect, onDelete, onRename, onSetPrivate, onUnsetPrivate }: SidebarProps) {
   const [search, setSearch] = useState('')
 
   const filtered = useMemo(() => {
@@ -46,6 +48,8 @@ export function Sidebar({ files, activeFilename, type, onSelect, onDelete, onRen
                     }
                   }}
                   onRename={(newTitle) => onRename(file.filename, newTitle)}
+                  onSetPrivate={onSetPrivate ? () => onSetPrivate(file.filename) : undefined}
+                  onUnsetPrivate={onUnsetPrivate ? () => onUnsetPrivate(file.filename) : undefined}
                 />
               ))}
             </div>
@@ -59,6 +63,8 @@ export function Sidebar({ files, activeFilename, type, onSelect, onDelete, onRen
             onSelect={onSelect}
             onDelete={onDelete}
             onRename={onRename}
+            onSetPrivate={onSetPrivate}
+            onUnsetPrivate={onUnsetPrivate}
           />
         )}
       </div>

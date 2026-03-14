@@ -9,6 +9,8 @@ interface TagTreeProps {
   onSelect: (filename: string) => void
   onDelete: (filename: string) => void
   onRename: (filename: string, newTitle: string) => void
+  onSetPrivate?: (filename: string) => void
+  onUnsetPrivate?: (filename: string) => void
 }
 
 interface TagNodeRowProps {
@@ -20,6 +22,8 @@ interface TagNodeRowProps {
   onSelect: (filename: string) => void
   onDelete: (filename: string) => void
   onRename: (filename: string, newTitle: string) => void
+  onSetPrivate?: (filename: string) => void
+  onUnsetPrivate?: (filename: string) => void
 }
 
 function TagNodeRow({
@@ -31,6 +35,8 @@ function TagNodeRow({
   onSelect,
   onDelete,
   onRename,
+  onSetPrivate,
+  onUnsetPrivate,
 }: TagNodeRowProps) {
   const isCollapsed = collapsed.has(node.fullPath)
   const sortedChildren = [...node.children.values()].sort((a, b) =>
@@ -66,6 +72,8 @@ function TagNodeRow({
               onSelect={onSelect}
               onDelete={onDelete}
               onRename={onRename}
+              onSetPrivate={onSetPrivate}
+              onUnsetPrivate={onUnsetPrivate}
             />
           ))}
           {sortedFiles.map((file) => (
@@ -80,6 +88,8 @@ function TagNodeRow({
                   }
                 }}
                 onRename={(newTitle) => onRename(file.filename, newTitle)}
+                onSetPrivate={onSetPrivate ? () => onSetPrivate(file.filename) : undefined}
+                onUnsetPrivate={onUnsetPrivate ? () => onUnsetPrivate(file.filename) : undefined}
                 hideTags
               />
             </div>
@@ -90,7 +100,7 @@ function TagNodeRow({
   )
 }
 
-export function TagTree({ root, activeFilename, onSelect, onDelete, onRename }: TagTreeProps) {
+export function TagTree({ root, activeFilename, onSelect, onDelete, onRename, onSetPrivate, onUnsetPrivate }: TagTreeProps) {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
 
   const toggleCollapsed = (fullPath: string) => {
@@ -131,6 +141,8 @@ export function TagTree({ root, activeFilename, onSelect, onDelete, onRename }: 
                 }
               }}
               onRename={(newTitle) => onRename(file.filename, newTitle)}
+              onSetPrivate={onSetPrivate ? () => onSetPrivate(file.filename) : undefined}
+              onUnsetPrivate={onUnsetPrivate ? () => onUnsetPrivate(file.filename) : undefined}
             />
           ))}
         </div>
@@ -148,6 +160,8 @@ export function TagTree({ root, activeFilename, onSelect, onDelete, onRename }: 
           onSelect={onSelect}
           onDelete={onDelete}
           onRename={onRename}
+          onSetPrivate={onSetPrivate}
+          onUnsetPrivate={onUnsetPrivate}
         />
       ))}
     </div>
