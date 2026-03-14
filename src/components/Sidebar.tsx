@@ -5,6 +5,7 @@ import { SearchBar } from './SearchBar'
 import { FileItem } from './FileItem'
 import { TagTree } from './TagTree'
 import { buildTagTree } from '@/lib/tagTree'
+import { Dialog, DialogConfig } from './Dialog'
 
 interface SidebarProps {
   files: FileEntry[]
@@ -19,6 +20,7 @@ interface SidebarProps {
 
 export function Sidebar({ files, activeFilename, type, onSelect, onDelete, onRename, onSetPrivate, onUnsetPrivate }: SidebarProps) {
   const [search, setSearch] = useState('')
+  const [dialog, setDialog] = useState<DialogConfig | null>(null)
 
   const filtered = useMemo(() => {
     if (!search) return []
@@ -43,9 +45,14 @@ export function Sidebar({ files, activeFilename, type, onSelect, onDelete, onRen
                   isActive={file.filename === activeFilename}
                   onSelect={() => onSelect(file.filename)}
                   onDelete={() => {
-                    if (window.confirm(`"${file.title}"을 삭제할까요?`)) {
-                      onDelete(file.filename)
-                    }
+                    setDialog({
+                      type: 'confirm',
+                      title: '파일 삭제',
+                      message: `"${file.title}"을 삭제할까요?`,
+                      danger: true,
+                      onConfirm: () => { setDialog(null); onDelete(file.filename) },
+                      onCancel: () => setDialog(null),
+                    })
                   }}
                   onRename={(newTitle) => onRename(file.filename, newTitle)}
                   onSetPrivate={onSetPrivate ? () => onSetPrivate(file.filename) : undefined}
@@ -68,6 +75,7 @@ export function Sidebar({ files, activeFilename, type, onSelect, onDelete, onRen
           />
         )}
       </div>
+      {dialog && <Dialog {...dialog} />}
     </aside>
   )
 }
