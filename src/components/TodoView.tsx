@@ -33,7 +33,7 @@ export function TodoView({ content, filename, onSave }: TodoViewProps) {
     [filename, onSave]
   )
 
-  const triggerAutoSave = useAutoSave(saveToServer, 500)
+  const { trigger: triggerAutoSave } = useAutoSave(saveToServer, 500)
 
   const applyChange = (newItems: TodoItemType[], immediate: boolean) => {
     const markdown = serializeItemsToMarkdown(newItems, latestContent)

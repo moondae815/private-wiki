@@ -29,7 +29,7 @@ export function Editor({ content, filename, type, onSave }: EditorProps) {
     [filename, type, onSave]
   )
 
-  const triggerSave = useAutoSave(saveFn, 2000)
+  const { trigger: triggerSave } = useAutoSave(saveFn, 2000)
 
   const editor = useEditor({
     immediatelyRender: false,
