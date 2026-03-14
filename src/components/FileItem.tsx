@@ -8,10 +8,21 @@ interface FileItemProps {
   onSelect: () => void
   onDelete: () => void
   onRename: (newTitle: string) => void
+  onSetPrivate?: () => void
+  onUnsetPrivate?: () => void
   hideTags?: boolean
 }
 
-export function FileItem({ file, isActive, onSelect, onDelete, onRename, hideTags }: FileItemProps) {
+export function FileItem({
+  file,
+  isActive,
+  onSelect,
+  onDelete,
+  onRename,
+  onSetPrivate,
+  onUnsetPrivate,
+  hideTags,
+}: FileItemProps) {
   const handleRename = () => {
     const newTitle = window.prompt('새 제목:', file.title)
     if (newTitle && newTitle.trim()) onRename(newTitle.trim())
@@ -27,13 +38,32 @@ export function FileItem({ file, isActive, onSelect, onDelete, onRename, hideTag
       }`}
     >
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium truncate">{file.title}</p>
+        <div className="flex items-center gap-1">
+          {file.isPrivate && <span className="text-sm shrink-0">🔒</span>}
+          <p className={`text-sm font-medium truncate ${file.isPrivate ? 'blur-sm select-none' : ''}`}>
+            {file.title}
+          </p>
+        </div>
         <p className="text-xs text-gray-400">
           {format(new Date(file.updatedAt), 'MM/dd')}
-          {!hideTags && file.tags.length > 0 && ` · ${file.tags.map((t) => `#${t}`).join(' ')}`}
+          {!hideTags && !file.isPrivate && file.tags.length > 0 && ` · ${file.tags.map((t) => `#${t}`).join(' ')}`}
         </p>
       </div>
       <div className="hidden group-hover:flex items-center gap-1 ml-2 shrink-0">
+        {!file.isPrivate && onSetPrivate && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onSetPrivate() }}
+            className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 text-xs"
+            title="비공개로 설정"
+          >🔒</button>
+        )}
+        {file.isPrivate && onUnsetPrivate && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onUnsetPrivate() }}
+            className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 text-xs"
+            title="비공개 해제"
+          >🔓</button>
+        )}
         <button
           onClick={(e) => { e.stopPropagation(); handleRename() }}
           className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 text-xs"
