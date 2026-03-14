@@ -27,6 +27,7 @@ Files are stored as `.md` files in `data/notes/` and `data/todos/`. All persiste
 - `GET /api/files?type=notes|todos` — list files
 - `POST /api/files` — create file
 - `GET|PUT|DELETE /api/files/[type]/[filename]` — read, update, delete
+- `GET /api/search?q=...&type=notes|todos` — full-text search across files
 
 ### Component Hierarchy
 
@@ -42,7 +43,9 @@ Tiptap 3 with the `tiptap-markdown` extension — content is always stored as ma
 
 ### File Naming & Metadata
 
-Filenames follow `YYYY-MM-DD-{slugified-title}.md`. Tags are extracted from inline `#tag-name` patterns in content (not from headings). See `src/lib/markdown.ts`.
+Filenames follow `YYYY-MM-DD-{slugified-title}.md`. Tags are extracted from inline `#tag-name` patterns in content (not from headings); slash-separated tags (`#parent/child`) form a hierarchy in the Sidebar. See `src/lib/markdown.ts` and `src/lib/tagTree.ts`.
+
+Todo items in `.md` files use GFM checkbox syntax (`- [ ]`/`- [x]`) with optional inline metadata: `@due:YYYY-MM-DD` and `@priority:high|medium|low`. Parsed/serialized by `src/lib/todos.ts`.
 
 ### Styling
 
