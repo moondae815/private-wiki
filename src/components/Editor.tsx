@@ -59,7 +59,7 @@ export function Editor({ content, filename, type, onSave }: EditorProps) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const current = (editor.storage as any).markdown.getMarkdown()
     if (current !== content) {
-      editor.commands.setContent(content, false)
+      editor.commands.setContent(content)
     }
   }, [content, editor])
 
