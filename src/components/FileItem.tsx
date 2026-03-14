@@ -40,7 +40,7 @@ export function FileItem({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1">
           {file.isPrivate && <span className="text-sm shrink-0">🔒</span>}
-          <p className={`text-sm font-medium truncate ${file.isPrivate ? 'blur-sm select-none' : ''}`}>
+          <p className="text-sm font-medium truncate">
             {file.title}
           </p>
         </div>
