@@ -4,6 +4,7 @@ import { FileType } from '@/types'
 import { TopNav } from './TopNav'
 import { Sidebar } from './Sidebar'
 import { Editor } from './Editor'
+import { TodoView } from './TodoView'
 import { useFiles } from '@/hooks/useFiles'
 
 interface AppShellProps {
@@ -64,13 +65,22 @@ export function AppShell({ type }: AppShellProps) {
         />
         <main className="flex-1 min-w-0 h-full overflow-hidden">
           {activeFilename ? (
-            <Editor
-              key={activeFilename}
-              content={activeContent}
-              filename={activeFilename}
-              type={type}
-              onSave={refresh}
-            />
+            type === 'todos' ? (
+              <TodoView
+                key={activeFilename}
+                content={activeContent}
+                filename={activeFilename}
+                onSave={refresh}
+              />
+            ) : (
+              <Editor
+                key={activeFilename}
+                content={activeContent}
+                filename={activeFilename}
+                type={type}
+                onSave={refresh}
+              />
+            )
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">
               <div className="text-center">
