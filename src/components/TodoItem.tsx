@@ -4,6 +4,7 @@ import type { TodoItem as TodoItemType } from '@/lib/todos'
 import { extractTodoMetadata } from '@/lib/markdown'
 import { DatePickerPopover } from './DatePickerPopover'
 import { PriorityDropdown } from './PriorityDropdown'
+import { AtMentionInput } from './AtMentionInput'
 
 interface TodoItemProps {
   item: TodoItemType
@@ -45,10 +46,10 @@ export function TodoItem({ item, onChange }: TodoItemProps) {
       {/* 텍스트 */}
       <div className="flex-1 min-w-0">
         {editing ? (
-          <input
+          <AtMentionInput
             autoFocus
             value={editText}
-            onChange={(e) => setEditText(e.target.value)}
+            onChange={setEditText}
             onBlur={commitText}
             onKeyDown={(e) => {
               if (e.key === 'Enter') commitText()
