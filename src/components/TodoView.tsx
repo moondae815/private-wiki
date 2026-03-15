@@ -4,6 +4,7 @@ import { parseMarkdownToItems, serializeItemsToMarkdown, TodoItem as TodoItemTyp
 import { extractTodoMetadata } from '@/lib/markdown'
 import { TodoItem } from './TodoItem'
 import { useAutoSave } from '@/hooks/useAutoSave'
+import { AtMentionInput } from './AtMentionInput'
 
 interface TodoViewProps {
   content: string
@@ -84,11 +85,10 @@ export function TodoView({ content, filename, onSave }: TodoViewProps) {
 
       <div className="flex items-center gap-2 px-3 py-2 mt-2">
         <span className="text-gray-300 dark:text-gray-600 text-sm">+</span>
-        <input
-          type="text"
+        <AtMentionInput
           placeholder="새 할 일 추가..."
           value={newTodoText}
-          onChange={(e) => setNewTodoText(e.target.value)}
+          onChange={setNewTodoText}
           onKeyDown={(e) => { if (e.key === 'Enter') addTodo(newTodoText) }}
           onBlur={() => addTodo(newTodoText)}
           className="flex-1 text-sm bg-transparent outline-none text-gray-500 dark:text-gray-400 placeholder:text-gray-300 dark:placeholder:text-gray-600"
