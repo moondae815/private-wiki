@@ -47,6 +47,18 @@ Filenames follow `YYYY-MM-DD-{slugified-title}.md`. Tags are extracted from inli
 
 Todo items in `.md` files use GFM checkbox syntax (`- [ ]`/`- [x]`) with optional inline metadata: `@due:YYYY-MM-DD` and `@priority:high|medium|low`. Parsed/serialized by `src/lib/todos.ts`.
 
+### Todos vs Notes
+
+The `/todos` page uses `TodoView` (structured checkbox list) instead of the Tiptap `Editor`. `TodoView` renders `TodoItem` components with inline due-date and priority pickers, and auto-saves with a 500ms debounce.
+
+### Private (Encrypted) Notes
+
+Files whose content starts with `PRIVATE:` are encrypted. `src/lib/crypto.ts` provides client-side AES-GCM encryption via the Web Crypto API (PBKDF2 key derivation, 100k iterations). `src/lib/fileFormat.ts` exposes `isPrivate()` to detect encrypted blobs. `PasswordModal` handles unlock UI. **Never import `crypto.ts` from API routes or server-side lib** — it uses browser globals only.
+
+### Dialog Component
+
+`src/components/Dialog.tsx` replaces native `window.prompt`/`window.confirm` throughout the app. Use it instead of browser dialogs for any user prompts.
+
 ### Styling
 
 Tailwind CSS v4 with `@tailwindcss/typography` for prose styling in the editor. Dark mode via `next-themes`. Path alias `@/*` maps to `src/*`.
