@@ -112,7 +112,7 @@ export function AtMentionInput({
   }
 
   return (
-    <div className="relative">
+    <div className={`relative ${className ?? ''}`}>
       <input
         ref={inputRef}
         value={value}
