@@ -89,7 +89,7 @@ interface AtMentionInputProps {
 **Tailwind 클래스 (다크모드 지원):**
 
 ```
-컨테이너: absolute top-full left-0 z-50 mt-1 min-w-[200px]
+컨테이너: absolute top-full left-0 z-50 mt-1 min-w-[240px] whitespace-nowrap
            bg-white dark:bg-gray-800
            border border-gray-200 dark:border-gray-700
            shadow-md rounded-lg overflow-hidden
@@ -104,7 +104,12 @@ interface AtMentionInputProps {
 
 ## 구현 노트
 
-- `@` 위치 추적: `value.lastIndexOf('@', cursorPosition)` 으로 가장 가까운 `@` 검색
-- 오늘 날짜: `new Date().toISOString().slice(0, 10)` (렌더 시마다 갱신)
-- `onBlur` 충돌 방지: 드롭다운 항목 클릭은 `onMouseDown` + `e.preventDefault()` 로 처리
-- `autoFocus` prop 지원 (TodoItem 편집 시 필요)
+- **커서 위치:** `inputRef.current.selectionStart` 를 `onChange`/`onKeyDown` 이벤트에서 동기적으로 읽어야 한다. 비동기 접근 시 선택 영역이 사라질 수 있다.
+- **`@` 위치 추적:** `value.lastIndexOf('@', cursorPosition)` 으로 커서 앞 가장 가까운 `@` 검색.
+- **교체 범위:** `[atIndex, cursorPosition]` — 커서 위치까지만 교체. 커서 이후 텍스트는 보존.
+- **오늘 날짜:** `new Date().toISOString().slice(0, 10)` (렌더 시마다 갱신).
+- **`Enter` / `Tab` 키 충돌 방지:** 드롭다운 열려 있을 때 `Enter`/`Tab` 선택 시 반드시 `e.preventDefault()` 호출하여 부모의 submit 핸들러 및 포커스 이동 억제.
+- **`onBlur` 동작:** 드롭다운 항목 클릭은 `onMouseDown` + `e.preventDefault()` 로 blur 억제. 일반 포커스 이탈 시에만 `onBlur` prop 호출.
+- **드롭다운 상태 동기화:** `value` prop 이 외부에서 변경될 때(예: 제출 후 `""` 리셋) 드롭다운을 닫아야 한다. `@` 트리거 조건이 충족되지 않으면 드롭다운을 표시하지 않는다.
+- **`autoFocus`:** HTML attribute 로 전달하지 않고 `useEffect` + `ref.current.focus()` 로 구현. TodoItem 더블클릭 편집 시 신뢰성 있는 포커스 보장.
+- **드롭다운 너비:** 가장 긴 항목(`@due:2026-03-15 오늘`)을 수용하기 위해 `min-w-[240px]` + `whitespace-nowrap` 적용.
