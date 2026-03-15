@@ -55,7 +55,8 @@ export function TodoItem({ item, onChange }: TodoItemProps) {
               if (e.key === 'Enter') commitText()
               if (e.key === 'Escape') { setEditing(false); setEditText(item.text) }
             }}
-            className="w-full text-sm bg-transparent border-b border-blue-400 outline-none text-gray-800 dark:text-gray-200"
+            className="w-full"
+            inputClassName="text-sm bg-transparent border-b border-blue-400 outline-none text-gray-800 dark:text-gray-200"
           />
         ) : (
           <span

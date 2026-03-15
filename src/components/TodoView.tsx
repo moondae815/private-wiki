@@ -91,7 +91,8 @@ export function TodoView({ content, filename, onSave }: TodoViewProps) {
           onChange={setNewTodoText}
           onKeyDown={(e) => { if (e.key === 'Enter') addTodo(newTodoText) }}
           onBlur={() => addTodo(newTodoText)}
-          className="flex-1 text-sm bg-transparent outline-none text-gray-500 dark:text-gray-400 placeholder:text-gray-300 dark:placeholder:text-gray-600"
+          className="flex-1"
+          inputClassName="text-sm bg-transparent outline-none text-gray-500 dark:text-gray-400 placeholder:text-gray-300 dark:placeholder:text-gray-600"
         />
       </div>
     </div>

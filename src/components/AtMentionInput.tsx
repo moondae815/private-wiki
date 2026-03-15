@@ -22,7 +22,8 @@ export interface AtMentionInputProps {
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
   onBlur?: () => void
   placeholder?: string
-  className?: string
+  className?: string        // for outer wrapper div (layout: flex-1, w-full, etc.)
+  inputClassName?: string   // for inner <input> (styling: text-sm, bg-transparent, border-b, etc.)
   autoFocus?: boolean
 }
 
@@ -33,6 +34,7 @@ export function AtMentionInput({
   onBlur,
   placeholder,
   className,
+  inputClassName,
   autoFocus,
 }: AtMentionInputProps) {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -49,7 +51,7 @@ export function AtMentionInput({
     if (cursor > value.length) {
       setCursor(value.length)
     }
-  }, [value])
+  }, [value, cursor])
 
   const filtered = useMemo(() => {
     if (dismissed) return null
@@ -120,7 +122,7 @@ export function AtMentionInput({
         onKeyDown={handleKeyDown}
         onBlur={onBlur}
         placeholder={placeholder}
-        className={className}
+        className={inputClassName}
       />
       {filtered && (
         <div className="absolute top-full left-0 z-50 mt-1 min-w-[240px] whitespace-nowrap bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md rounded-lg overflow-hidden">
