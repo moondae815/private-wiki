@@ -1,0 +1,502 @@
+ ▐▛███▜▌   Claude Code v2.1.76
+▝▜█████▛▘  Sonnet 4.6 · Claude Pro
+  ▘▘ ▝▝    C:\git-root\private-wiki
+
+❯ /clear                                                                        
+  ⎿  (no content)
+
+❯ Todo 노트 입력시 '@ 를 입력하면 due:{기본:오늘}, priority:high|medium|low 를  
+직접 타이핑 하지 않아도 자동완성되게 UX를 개선해줘.                             
+
+● Skill(superpowers:brainstorming)
+  ⎿  Successfully loaded skill
+
+● Searched for 1 pattern, read 3 files (ctrl+o to expand)
+
+● 이제 코드베이스를 잘 이해했습니다. 현재 구조:
+  - TodoView의 "새 할 일 추가..." 입력창과 TodoItem의 인라인 편집 입력창 모두
+  @due:YYYY-MM-DD, @priority:high|medium|low 직접 타이핑 지원
+  - 둘 다 plain <input> 요소
+
+● 첫 번째 질문입니다.
+
+  @due: 선택 시 어떤 동작을 원하시나요?
+
+  A) 오늘 날짜(@due:2026-03-15)를 바로 삽입 — 필요하면 직접 수정 가능
+  B) 날짜 선택 팝업을 열어 날짜 선택 후 삽입
+  C) @due: 텍스트만 삽입하고 커서를 날짜 입력 위치에 놓기 (직접 입력)
+
+✻ Cooked for 47s
+
+❯ A                                                                             
+
+● 두 번째 질문입니다.
+
+  자동완성이 나타나야 하는 위치는 어디인가요?
+
+  A) "새 할 일 추가..." 입력창만
+  B) 기존 할 일 더블클릭 편집 입력창만
+  C) 둘 다
+
+❯ C                                                                             
+
+● 세 가지 접근 방법입니다.
+
+  ---
+  A) AtMentionInput 공통 컴포넌트 (추천)
+
+  @ 입력 감지 + 드롭다운을 하나의 컴포넌트로 캡슐화. TodoView와 TodoItem 모두 이
+   컴포넌트로 교체. 재사용성 높고 로직이 한 곳에 집중됨.
+
+  B) 커스텀 훅 useAtMention
+
+  드롭다운 상태·로직만 훅으로 분리, 렌더링은 각 컴포넌트에서. 유연하지만 두
+  컴포넌트에 동일한 JSX 패턴 반복.
+
+  C) TodoView와 TodoItem 직접 수정
+
+  각 파일에 인라인으로 자동완성 로직 추가. 가장 간단하지만 코드 중복 발생.
+
+  ---
+  추천: A) — 두 군데에서 동일한 UX가 필요하므로 공통 컴포넌트로 한 번만 구현하는
+   것이 깔끔합니다. 훅 방식(B)은 JSX 중복이 생겨 장점이 반감됩니다.
+
+  이 방향으로 진행할까요?
+
+❯ A                                                                             
+
+● 디자인 — 섹션 1: 컴포넌트 구조
+
+  새 파일: src/components/AtMentionInput.tsx
+
+  <input> 을 감싸는 wrapper 컴포넌트. props는 기존 <input> 과 동일하게 value,
+  onChange, onKeyDown, onBlur, placeholder, className 지원.
+
+  드롭다운 항목 (총 4개):
+  @due:2026-03-15      ← 오늘 날짜 동적 삽입
+  @priority:high
+  @priority:medium
+  @priority:low
+
+  트리거 조건: 입력값 어느 위치든 @ 를 타이핑하는 순간 표시. @d, @p 등 이후
+  문자로 필터링.
+
+  선택 방법: 마우스 클릭 또는 키보드 ↑ ↓ 로 이동 후 Enter / Tab 으로 선택.
+  Escape 로 닫기.
+
+  삽입 동작: @ 부터 현재 커서까지의 입력을 선택한 항목으로 교체. 예: 할 일 @d →
+  할 일 @due:2026-03-15 
+
+  기존 변경:
+  - TodoView 의 "새 할 일" <input> → <AtMentionInput>
+  - TodoItem 의 편집 <input> → <AtMentionInput>
+
+  이 구조 괜찮으신가요?
+
+❯ 좋아.                                                                         
+
+● 디자인 — 섹션 2: 드롭다운 위치 & 스타일
+
+  위치: 입력창 바로 아래, position: absolute. 부모에 relative 래퍼.
+
+  스타일 (Tailwind, 다크모드 지원):
+  배경: white / dark:gray-800
+  테두리: border border-gray-200 / dark:border-gray-700
+  그림자: shadow-md
+  모서리: rounded-lg
+  각 항목: px-3 py-1.5 text-sm, hover 시 bg-blue-50 / dark:bg-blue-900/30
+  선택된 항목: bg-blue-100 / dark:bg-blue-800/40
+
+  항목 표시 형식:
+  @due:2026-03-15     (오른쪽에 작은 힌트: "오늘")
+  @priority:high
+  @priority:medium
+  @priority:low
+
+  필터링: @ 이후 입력한 문자로 항목 좁히기. 예: @p → priority 3개만 표시. 일치
+  항목 없으면 드롭다운 숨김.
+
+  이 스타일 방향 괜찮으신가요?
+
+❯ 좋아.                                                                         
+
+● Bash(mkdir -p "C:\git-root\private-wiki\docs\superpowers\specs")
+  ⎿  Done
+
+● Write(docs\superpowers\specs\2026-03-15-at-mention-autocomplete-design.md)
+  ⎿  Wrote 110 lines to
+     docs\superpowers\specs\2026-03-15-at-mention-autocomplete-design.md
+       1 # @ 자동완성 UX 디자인 스펙
+       2 
+       3 **날짜:** 2026-03-15
+       4 **상태:** 승인됨
+       5 
+       6 ## 개요
+       7 
+       8 Todo 입력창에서 `@` 를 타이핑하면 `@due:{오늘날짜}`, `@priority:
+         high|medium|low` 자동완성 드롭다운을 표시하여, 메타데이터를 직접
+          타이핑하지 않고 선택할 수 있도록 UX를 개선한다.
+       9 
+      10 ## 영향 범위
+     … +100 lines (ctrl+o to expand)
+
+● Bash(cd "C:\git-root\private-wiki" && git add
+      docs/superpowers/specs/2026-03-15-at-mention-autocomplete-design.md && git
+       commit -m "docs: add @ autocomplete UX desig…)
+  ⎿  warning: in the working copy of 'docs/superpowers/specs/2026-03-15-at-
+     mention-autocomplete-design.md', LF will be replaced by CRLF the next
+     time Git touches it
+     … +4 lines (ctrl+o to expand)
+
+● Agent(Spec document review)
+  ⎿  Done (0 tool uses · 12.1k tokens · 28s)
+  (ctrl+o to expand)
+
+● 스펙 리뷰에서 8가지 이슈가 발견됐습니다. 스펙을 업데이트하겠습니다.
+
+● Update(docs\superpowers\specs\2026-03-15-at-mention-autocomplete-design.md)
+  ⎿  Added 9 lines, removed 4 lines
+      104  
+      105  ## 구현 노트
+      106  
+      107 -- `@` 위치 추적: `value.lastIndexOf('@', cursorPosition)` 으로
+          - 가장 가까운 `@` 검색                                         
+      108 -- 오늘 날짜: `new Date().toISOString().slice(0, 10)` (렌더 시 
+          -마다 갱신)                                                    
+      109 -- `onBlur` 충돌 방지: 드롭다운 항목 클릭은 `onMouseDown` + `e.
+          -preventDefault()` 로 처리                                     
+      110 -- `autoFocus` prop 지원 (TodoItem 편집 시 필요)               
+      107 +- **커서 위치:** `inputRef.current.selectionStart` 를 `onChang
+          +e`/`onKeyDown` 이벤트에서 동기적으로 읽어야 한다. 비동기 접근 
+          +시 선택 영역이 사라질 수 있다.                                
+      108 +- **`@` 위치 추적:** `value.lastIndexOf('@', cursorPosition)` 
+          +으로 커서 앞 가장 가까운 `@` 검색.                            
+      109 +- **교체 범위:** `[atIndex, cursorPosition]` — 커서 위치까지만
+          + 교체. 커서 이후 텍스트는 보존.                               
+      110 +- **오늘 날짜:** `new Date().toISOString().slice(0, 10)` (렌더
+          + 시마다 갱신).                                                
+      111 +- **`Enter` / `Tab` 키 충돌 방지:** 드롭다운 열려 있을 때 `Ent
+          +er`/`Tab` 선택 시 반드시 `e.preventDefault()` 호출하여 부모의 
+          +submit 핸들러 및 포커스 이동 억제.                            
+      112 +- **`onBlur` 동작:** 드롭다운 항목 클릭은 `onMouseDown` + `e.p
+          +reventDefault()` 로 blur 억제. 일반 포커스 이탈 시에만 `onBlur
+          +` prop 호출.                                                  
+      113 +- **드롭다운 상태 동기화:** `value` prop 이 외부에서 변경될 때
+          +(예: 제출 후 `""` 리셋) 드롭다운을 닫아야 한다. `@` 트리거 조 
+          +건이 충족되지 않으면 드롭다운을 표시하지 않는다.              
+      114 +- **`autoFocus`:** HTML attribute 로 전달하지 않고 `useEffect`
+          + + `ref.current.focus()` 로 구현. TodoItem 더블클릭 편집 시 신
+          +뢰성 있는 포커스 보장.                                        
+      115 +- **드롭다운 너비:** 가장 긴 항목(`@due:2026-03-15 오늘`)을 수
+          +용하기 위해 `min-w-[240px]` + `whitespace-nowrap` 적용.       
+
+● Update(docs\superpowers\specs\2026-03-15-at-mention-autocomplete-design.md)
+  ⎿  Added 1 line, removed 1 line
+      89  **Tailwind 클래스 (다크모드 지원):**
+      90  
+      91  ```
+      92 -컨테이너: absolute top-full left-0 z-50 mt-1 min-w-[200px]     
+      92 +컨테이너: absolute top-full left-0 z-50 mt-1 min-w-[240px] whit
+         +espace-nowrap                                                  
+      93             bg-white dark:bg-gray-800
+      94             border border-gray-200 dark:border-gray-700
+      95             shadow-md rounded-lg overflow-hidden
+
+● 이제 다시 리뷰를 돌립니다.
+
+● Agent(Spec review round 2)
+  ⎿  Done (0 tool uses · 11.5k tokens · 8s)
+  (ctrl+o to expand)
+
+● 스펙이 승인됐습니다.
+  docs/superpowers/specs/2026-03-15-at-mention-autocomplete-design.md 에
+  저장됐으니 검토 부탁드립니다.
+
+  변경 사항이 없으면 구현 계획 작성으로 넘어가겠습니다.
+
+✻ Cogitated for 2m 25s
+
+❯ 검토 완료.                                                                    
+
+● Skill(superpowers:writing-plans)
+  ⎿  Successfully loaded skill
+
+● I'm using the writing-plans skill to create the implementation plan.
+
+● Searched for 1 pattern, read 4 files (ctrl+o to expand)
+
+● 이제 구현 플랜을 작성합니다.
+
+● Bash(mkdir -p "C:\git-root\private-wiki\docs\superpowers\plans")
+  ⎿  Done
+
+● Write(docs\superpowers\plans\2026-03-15-at-mention-autocomplete.md)
+  ⎿  Wrote 519 lines to
+     docs\superpowers\plans\2026-03-15-at-mention-autocomplete.md
+      1 # @ 자동완성 (AtMention Autocomplete) Implementation Plan
+      2 
+      3 > **For agentic workers:** REQUIRED: Use superpowers:subagent-dri
+        ven-development (if subagents available) or superpowers:executing
+        -plans to implement this plan. Steps use checkbox (`- [ ]`) synta
+        x for tracking.
+      4 
+      5 **Goal:** Todo 입력창에서 `@` 타이핑 시 `@due:{오늘}` / `@priorit
+        y:*` 자동완성 드롭다운을 제공하는 `AtMentionInput` 컴포넌트를 만
+        들고, `TodoView`와 `TodoItem`에 통합한다.
+      6 
+      7 **Architecture:** `AtMentionInput` 컴포넌트가 자동완성 로직과 드
+        롭다운 렌더링을 캡슐화한다. `value` / cursor 상태로부터 필터된 제
+        안을 파생(derive)하고, `dismissed` 상태로 Escape 닫기를 구현한다.
+         `TodoView`와 `TodoItem`은 기존 `<input>`을 `<AtMentionInput>`으
+        로 교체하며 `onChange`를 `string` 직접 수신 방식으로 변경한다.
+      8 
+      9 **Tech Stack:** React 19, TypeScript, Tailwind CSS v4, Jest + @te
+        sting-library/react (jsdom)
+     … +509 lines (ctrl+o to expand)
+
+● 이제 플랜 리뷰를 돌립니다.
+
+● Agent(Plan document review chunk 1)
+  ⎿  Done (12 tool uses · 25.2k tokens · 1m 53s)
+  (ctrl+o to expand)
+
+● 주요 이슈 2개 (cursor lag, activeIndex 리셋)를 수정하고 누락 테스트를
+  추가합니다.
+
+● Read 1 file (ctrl+o to expand)
+
+● Update(docs\superpowers\plans\2026-03-15-at-mention-autocomplete.md)
+  ⎿  Added 3 lines, removed 1 line
+      81      return matches.length > 0 ? { atIndex, matches } : null
+      82    }, [value, cursor, dismissed])
+      83  
+      84 +  // query token이 바뀔 때마다 activeIndex 초기화 (count만 보면
+         + 같은 수의 다른 결과로 바뀔 때 놓침)                           
+      85 +  const queryToken = filtered ? value.slice(filtered.atIndex, c
+         +ursor) : null                                                  
+      86    useEffect(() => {
+      87      setActiveIndex(0)
+      86 -  }, [filtered?.matches.length])                               
+      88 +  }, [queryToken])                                             
+      89  
+      90    const insertSuggestion = (label: string) => {
+      91      const newValue =
+
+● 이제 누락된 테스트 3개를 추가합니다.
+
+● Update(docs\superpowers\plans\2026-03-15-at-mention-autocomplete.md)
+  ⎿  Added 32 lines
+      332    })
+      333  })
+      334  
+      335 +describe('AtMentionInput – ArrowUp 내비게이션', () => {       
+      336 +  it('ArrowUp으로 마지막 항목으로 순환된다', () => {          
+      337 +    const onChange = jest.fn()                                
+      338 +    render(<AtMentionInput value="@p" onChange={onChange} plac
+          +eholder="입력" />)                                            
+      339 +    const input = screen.getByPlaceholderText('입력')         
+      340 +    // activeIndex starts at 0; ArrowUp wraps to last (index 2
+          + = @priority:low)                                             
+      341 +    fireEvent.keyDown(input, { key: 'ArrowUp' })              
+      342 +    fireEvent.keyDown(input, { key: 'Enter' })                
+      343 +    expect(onChange).toHaveBeenCalledWith('@priority:low ')   
+      344 +  })                                                          
+      345 +})                                                            
+      346 +                                                              
+      347 +describe('AtMentionInput – onBlur 전달', () => {              
+      348 +  it('포커스 이탈 시 onBlur prop이 호출된다', () => {         
+      349 +    const onBlur = jest.fn()                                  
+      350 +    render(                                                   
+      351 +      <AtMentionInput value="hello" onChange={jest.fn()} onBlu
+          +r={onBlur} placeholder="입력" />                              
+      352 +    )                                                         
+      353 +    fireEvent.blur(screen.getByPlaceholderText('입력'))       
+      354 +    expect(onBlur).toHaveBeenCalled()                         
+      355 +  })                                                          
+      356 +})                                                            
+      357 +                                                              
+      358 +describe('AtMentionInput – 중간 위치 @ 트리거', () => {       
+      359 +  it('문자열 중간의 @도 드롭다운을 표시한다', () => {         
+      360 +    // jsdom에서 selectionStart는 null → cursor = value.length
+          + = 8                                                          
+      361 +    // value.lastIndexOf('@', 7) → 6 → tokenPart = "@p" → quer
+          +y = "p"                                                       
+      362 +    setup('hello @p')                                         
+      363 +    expect(screen.getByText('@priority:high')).toBeInTheDocume
+          +nt()                                                          
+      364 +  })                                                          
+      365 +})                                                            
+      366 +                                                              
+      367  describe('AtMentionInput – onChange 동작', () => {
+      368    it('onChange는 string을 직접 받는다', () => {
+      369      const onChange = jest.fn()
+
+● 이제 컴포넌트 코드의 queryToken 변경도 반영합니다.
+
+● Agent(Plan review round 2)
+  ⎿  Done (0 tool uses · 10.6k tokens · 11s)
+  (ctrl+o to expand)
+
+● 플랜이 승인됐습니다. 커밋합니다.
+
+● Bash(cd "C:\git-root\private-wiki" && git add
+      docs/superpowers/plans/2026-03-15-at-mention-autocomplete.md && git commit
+       -m "docs: add @ autocomplete implementation…)
+  ⎿  warning: in the working copy of 'docs/superpowers/plans/2026-03-15-at-
+     mention-autocomplete.md', LF will be replaced by CRLF the next time Gi
+     t touches it
+     … +4 lines (ctrl+o to expand)
+
+● 플랜 완성되어 docs/superpowers/plans/2026-03-15-at-mention-autocomplete.md 에
+  저장됐습니다. 실행할까요?
+
+✻ Sautéed for 7m 0s
+
+❯ 실행해줘.                                                                     
+
+● Skill(superpowers:subagent-driven-development)
+  ⎿  Successfully loaded skill
+
+● I'm using Subagent-Driven Development to execute this plan.
+
+● Searched for 1 pattern, read 4 files (ctrl+o to expand)
+
+● 플랜을 읽었습니다. 4개 태스크를 TodoWrite로 추적하고 순서대로 실행합니다.
+
+● Bash(cd "C:\git-root\private-wiki" && git rev-parse HEAD)
+  ⎿  bde3192bd7947e834e2cdb9aad832f77806262aa
+
+● Task 1+2 실행 중 — AtMentionInput 컴포넌트 + 테스트
+
+● Agent(Implement AtMentionInput component + tests)
+  ⎿  Done (6 tool uses · 20.2k tokens · 1m 22s)
+  (ctrl+o to expand)
+
+● Task 1+2 완료. 스펙 컴플라이언스 리뷰를 실행합니다.
+
+● Agent(Spec review for AtMentionInput)
+  ⎿  Done (3 tool uses · 16.2k tokens · 23s)
+  (ctrl+o to expand)
+
+● 스펙 컴플라이언스 ✅. 코드 퀄리티 리뷰를 실행합니다.
+
+● Bash(cd "C:\git-root\private-wiki" && git rev-parse HEAD)
+  ⎿  9a7743ce0cc62004bb9be7e34d9dd9bcaa7b3d2f
+
+● superpowers:code-reviewer(Code quality review for AtMentionInput)
+  ⎿  Done (9 tool uses · 23.5k tokens · 1m 12s)
+  (ctrl+o to expand)
+
+● 코드 리뷰 결과: 중요한 이슈 하나 — value가 외부에서 변경될 때 cursor 상태
+  동기화가 누락. 스펙에서 명시한 사항입니다. 수정합니다.
+
+● Agent(Fix cursor sync on external value reset)
+  ⎿  Done (6 tool uses · 17.6k tokens · 40s)
+  (ctrl+o to expand)
+
+● Bash(cd "C:\git-root\private-wiki" && git rev-parse HEAD)
+  ⎿  7b5ab715d5c22583fb3adcc3ec7f0cc237e40ba5
+
+● Task 1+2 완료 ✅. Task 3 — TodoView 통합 실행합니다.
+
+● Agent(Integrate AtMentionInput into TodoView)
+  ⎿  Done (6 tool uses · 13.9k tokens · 49s)
+  (ctrl+o to expand)
+
+● 스펙 리뷰와 코드 퀄리티 리뷰를 병렬로 실행합니다.
+
+● Bash(cd "C:\git-root\private-wiki" && git rev-parse HEAD)
+  ⎿  5c51ca5b8a9d8f3ae9a18b1848f9a73e69ac5077
+
+● 2 agents finished (ctrl+o to expand)
+   ├─ Agent (Spec review for TodoView integration) · 2 tool uses · 17.9k tokens
+   │  ⎿  Done
+   └─ superpowers:code-reviewer (Code quality review for TodoView integration) ·
+    13 tool uses · 27.3k tokens
+      ⎿  Done
+
+● 코드 퀄리티 리뷰에서 중요한 레이아웃 이슈 발견 — flex-1이 outer <div> 에
+  적용되지 않아 입력창이 좁아지는 문제. 수정합니다.
+
+● Agent(Fix flex-1 layout issue in AtMentionInput) Haiku 4.5
+  ⎿  Done (4 tool uses · 19.4k tokens · 33s)
+  (ctrl+o to expand)
+
+● Task 3 완료 ✅. Task 4 — TodoItem 통합 실행합니다.
+
+● Agent(Integrate AtMentionInput into TodoItem)
+  ⎿  Done (8 tool uses · 15.1k tokens · 1m 11s)
+  (ctrl+o to expand)
+
+● Bash(cd "C:\git-root\private-wiki" && git rev-parse HEAD)
+  ⎿  78598b1bc02e249e4a11d05faaefa60530375450
+
+● Agent(Spec + quality review for TodoItem integration) Haiku 4.5
+  ⎿  Done (2 tool uses · 20.2k tokens · 6s)
+  (ctrl+o to expand)
+
+● 모든 태스크 완료. 최종 코드 리뷰를 실행합니다.
+
+● superpowers:code-reviewer(Final code review for full implementation)
+  ⎿  Done (14 tool uses · 38.2k tokens · 3m 40s)
+  (ctrl+o to expand)
+
+● 코드 리뷰 결과: exhaustive-deps 경고(cursor dep array 누락)와 className 이중
+  적용 이슈를 수정합니다.
+
+● Agent(Fix eslint exhaustive-deps and className dual application)
+  ⎿  Done (11 tool uses · 18.7k tokens · 1m 42s)
+  (ctrl+o to expand)
+
+● Bash(cd "C:\git-root\private-wiki" && git log --oneline -8)
+  ⎿  c9ec1af refactor: split className/inputClassName in AtMentionInput, fi
+     x cursor dep array
+     78598b1 feat: integrate AtMentionInput into TodoItem
+     … +8 lines (ctrl+o to expand)
+
+● 모든 태스크 완료 ✅. 구현이 완성됐습니다.
+
+● Skill(superpowers:finishing-a-development-branch)
+  ⎿  Successfully loaded skill
+
+● I'm using the finishing-a-development-branch skill to complete this work.
+
+● Bash(cd "C:\git-root\private-wiki" && pnpm test 2>&1 | tail -20)
+  ⎿  > private-wiki@0.1.0 test C:\git-root\private-wiki
+     > jest
+     … +6 lines (ctrl+o to expand)
+  ⎿  (timeout 1m)
+
+● 96/96 테스트 통과 ✅
+
+  구현 완료. 어떻게 하시겠어요?
+
+  1. main 브랜치로 로컬 머지
+  2. Push 후 Pull Request 생성
+  3. 현재 상태 유지 (나중에 처리)
+  4. 작업 폐기
+
+✻ Cooked for 13m 59s
+
+❯ 1                                                                             
+
+● Bash(cd "C:\git-root\private-wiki" && git branch --show-current && git
+      worktree list)
+  ⎿  main
+     C:/git-root/private-wiki  c9ec1af [main]
+
+● 이미 main 브랜치에서 작업했으므로 별도 머지가 필요 없습니다. 모든 커밋이 이미
+  main에 있습니다.
+
+  c9ec1af refactor: split className/inputClassName in AtMentionInput, fix cursor
+   dep array
+  78598b1 feat: integrate AtMentionInput into TodoItem
+  117bf01 fix: forward className to outer wrapper div for correct flex layout
+  5c51ca5 feat: integrate AtMentionInput into TodoView
+  7b5ab71 fix: sync cursor when value is reset externally
+  9a7743c feat: add AtMentionInput component with @ autocomplete dropdown
+
+  완료됐습니다. pnpm dev 로 실행해서 /todos 페이지에서 확인해보세요.
+
+  - "새 할 일 추가..." 입력창에서 @ 타이핑 → 드롭다운 표시
+  - 기존 할 일 더블클릭 편집 시도 동일하게 동작
