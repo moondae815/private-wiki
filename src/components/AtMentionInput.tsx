@@ -44,6 +44,13 @@ export function AtMentionInput({
     if (autoFocus) inputRef.current?.focus()
   }, [autoFocus])
 
+  // Sync cursor when value is changed externally (e.g., parent resets to "")
+  useEffect(() => {
+    if (cursor > value.length) {
+      setCursor(value.length)
+    }
+  }, [value])
+
   const filtered = useMemo(() => {
     if (dismissed) return null
     const atIndex = value.lastIndexOf('@', cursor - 1)

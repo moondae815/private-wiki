@@ -191,4 +191,18 @@ describe('AtMentionInput – onChange 동작', () => {
     rerender(<AtMentionInput value="@" onChange={jest.fn()} placeholder="입력" />)
     expect(screen.getByText(`@due:${today}`)).toBeInTheDocument()
   })
+
+  it('외부에서 value가 빈 문자열로 리셋된 후 @ 입력 시 드롭다운이 정상 표시된다', () => {
+    const today = new Date().toISOString().slice(0, 10)
+    // Start with a value that sets cursor to 5
+    const { rerender } = render(
+      <AtMentionInput value="할일 @p" onChange={jest.fn()} placeholder="입력" />
+    )
+    // Parent resets value to "" (external reset, no handleChange fired)
+    rerender(<AtMentionInput value="" onChange={jest.fn()} placeholder="입력" />)
+    // Simulate user typing "@" (handleChange fires with selectionStart=null → cursor=1)
+    fireEvent.change(screen.getByPlaceholderText('입력'), { target: { value: '@' } })
+    rerender(<AtMentionInput value="@" onChange={jest.fn()} placeholder="입력" />)
+    expect(screen.getByText(`@due:${today}`)).toBeInTheDocument()
+  })
 })
